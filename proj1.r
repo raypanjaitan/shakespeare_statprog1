@@ -3,23 +3,30 @@
 # Sanjoi Sethi 
 
 
-setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_statprog1") ## comment out of submitted
-a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
+setwd("C:/Users/adiku/OneDrive/Desktop/edin/project/shakespeare_statprog1")
+a <- scan("shakespeare.txt",what="character",skip=83,nlines=196043-83,
           fileEncoding="UTF-8")
 
-for (word in a){
-  if(nchar(word) > 2){
-    if(grepl("\\[.*\\]", word)){
-      word<-gsub("[", "",word, fixed=TRUE)
-      word<-gsub("]", "",word, fixed=TRUE)
-      
-    }
-    if(grepl("_", word)){
-      word<-gsub("_", '',word)
-    }
-    
-    if(toupper(word) == word || grepl("\\d", word)){
-      word<-''
-    }
+##Deleting Stage Directions
+open_br<-grep("[", a, fixed=TRUE)
+del1<-c()
+for (i in open_br){
+  close_br=grep("]",a[i:i+100],fixed=TRUE)
+  if (length(close_br)>0){
+    close_index<-i + close_br[1]-1
+    del1 <- c(del1, i:close_index)
   }
+  
 }
+a_clean=a[-del1]
+
+##Deleting Character Names
+a_upper<-toupper(a_clean)==a_clean & !(a_clean %in% c("I","A"))
+a_clean1= a_clean[!a_upper]
+
+##Deleting Roman Numerals
+roman <- grep("^[IVXLCDM]+$", a_clean1)
+a_clean2 <- a_clean1[-roman]
+
+##Removing dashes
+a_clean3 <- gsub("-", "", a_clean2)
