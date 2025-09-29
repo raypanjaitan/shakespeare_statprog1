@@ -1,6 +1,6 @@
-# Aditya Sreekumar Achary
+# Aditya Sreekumar Achary - s2844915
 # Trisno Raynaldy Panjaitan - s2779061
-# Shun Wang
+# Sanjoi Sethi 
 
 
 setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_statprog1") ## comment out of submitted
