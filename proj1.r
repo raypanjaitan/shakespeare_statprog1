@@ -39,6 +39,8 @@ a.freq <- table(a) ## create frequency table of the text
 a.freq.sorted <-sort(a.freq, decreasing=TRUE) ## sort the frequency table
 b <- a.freq.sorted[1:1000] ## get 1000 most common words
 
+text_tokens<-match(a_clean3,b)
+
 ## tabulate option, but doesn't work
 # u <-unique(a)
 # a.match <-match(a, u)
