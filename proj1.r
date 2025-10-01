@@ -9,6 +9,7 @@ z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
 
 a.dir <- grep("^\\[.*\\]$", a) ## get direction words coordinate
 if(length(a.dir) > 0){ a<-a[-a.dir]} ## remove the direction words if it's found
+a <- gsub("\\d+", "",a) ## remove all arabic numerals
 a.I <- grepl("\\bI\\b", a) ## get all character "I" coordinate
 a.A <- grepl("\\bA\\b", a) ## get all character "A" coordinate
 a.uc <- (a == toupper(a)) ## get all uppercase coordinate
