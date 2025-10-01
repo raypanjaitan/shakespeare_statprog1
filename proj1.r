@@ -4,20 +4,18 @@
 
 
 setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_statprog1") ## comment out of submitted
-b <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
-          fileEncoding="UTF-8")
+z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
+          fileEncoding="UTF-8") ##import text; create z variable just for debug
 
-b.dir <- grep("^\\[.*\\]$", b) ## get direction words coordinate
-if(length(b.dir) > 0){ b<-b[-b.dir]} ## remove the direction words if it's found
-b.I <- grepl("\\bI\\b", b) ## get all character "I" coordinate
-b.A <- grepl("\\bA\\b", b) ## get all character "A" coordinate
-b.uc <- (b == toupper(b)) ## get all uppercase coordinate
-b.allowed <- !b.uc | b.I | b.A ## get coordinate of vector without all uppercase, but including character I and A
-b <- b[b.allowed] ## get the filtered vector using the result of above variable
-b <- gsub("_", "", b) ## remove underscores
+a.dir <- grep("^\\[.*\\]$", a) ## get direction words coordinate
+if(length(a.dir) > 0){ a<-a[-a.dir]} ## remove the direction words if it's found
+a.I <- grepl("\\bI\\b", a) ## get all character "I" coordinate
+a.A <- grepl("\\bA\\b", a) ## get all character "A" coordinate
+a.uc <- (a == toupper(a)) ## get all uppercase coordinate
+a.allowed <- !a.uc | a.I | a.A ## get coordinate of vector without all uppercase, but including character I and A
+a <- a[a.allowed] ## get the filtered vector using the result of above variable
+a <- gsub("_", "", a) ## remove underscores
 
-punct <- c(",", ".", ";", "!", ":", "?")
-# "[[:punct:]]"
 split_punct <- function(v, punct){
   p <- grep(punct, v) ## get coordinate of vector containing punctuations
   pw <- grep(punct, v, value=TRUE) ## get the word containing punctuations
@@ -29,10 +27,20 @@ split_punct <- function(v, punct){
   tl[-tlp] <- gsub(punct, "", v) ## put the punctuations after its word
   tl[tlp] <- substr(v[p], pp, pp) ## put the cleaned words in its original coordinates
 
-  return(tolower(tl))
+  return(tolower(tl)) ##return lowercase version of vector
 }
 
-b <- split_punct(b, punct)
-b.freq <- table(b) #create frequency table of the text
-test <-sort(b.freq, decreasing=TRUE)
-test <- test[1:1000]
+punct <- c(",", ".", ";", "!", ":", "?") ## punctuations variable
+# "[[:punct:]]"
+a <- split_punct(a, punct) ## run the split_punct function
+
+a.freq <- table(a) ## create frequency table of the text
+a.freq.sorted <-sort(a.freq, decreasing=TRUE) ## sort the frequency table
+test <- test[1:1000] ## get 1000 most common words
+
+## tabulate option, but doesn't work
+# u <-unique(a)
+# a.match <-match(a, u)
+# a.count <- tabulate(a.match)
+# b <- rank(a.count)
+##
