@@ -29,24 +29,24 @@ a_clean2 <- a_clean1[-arabic]
 
 ##Removing dashes
 a_clean3<- gsub("_", "", a_clean2)
-b=unique(a_clean3)
 
-idx <- match(a_clean3, b)
+# Step 5: Find unique words and create common word vocabulary
+# Step 5a: Get vector of all unique words in text
+unique_words <- unique(a_clean3)
 
-## 7. Word counts using tabulate
-word_counts <- tabulate(idx, nbins = length(b))
+# Step 5b: Create index vector mapping each word in a to unique_words
+# Result is same length as a, with values giving position in unique_words
+word_index <- match(a, unique_words)
 
-## 8. Get the top ~1000 most common words
-word_rank <- rank(-word_counts, ties.method = "first")  # rank frequencies
-top_1000_idx <- which(word_rank <= 1000)
+# Step 5c: Count occurrences of each unique word using tabulate
+word_counts <- tabulate(word_index)
 
-b_top1000 <- b[top_1000_idx]                  # words
-counts_top1000 <- word_counts[top_1000_idx]   # their counts
-
-## 9. (Optional) Sort top words by frequency, descending
-ord <- order(counts_top1000, decreasing = TRUE)
-b_top1000_sorted <- b_top1000[ord]
-counts_top1000_sorted <- counts_top1000[ord]
+# Step 5d: Extract the approximately 1000 most common words
+# rank gives ranks with highest count = lowest rank number
+word_ranks <- rank(-word_counts)  ## negate so highest count gets rank 1
+top_n <- 1000
+common_words <- unique_words[word_ranks <= top_n]
+b <- common_words  ## store in b as specified
 
 
 
@@ -55,18 +55,20 @@ counts_top1000_sorted <- counts_top1000[ord]
 # Step 6a: Create token vector for full text using common words in b
 # NA if word not in common word list
 ##text_tokens <- match(a, b)
-text_tokens<-match(a_clean3,b_top1000_sorted)
+text_tokens<-match(a_clean3,b)
 
 # Step 6b: Create matrix M with shifted token sequences
-mlag <- 2  # maximum lag (can be changed)
+mlag <- 4  # maximum lag (can be changed)
 n <- length(text_tokens)
 
 # Create matrix with n-mlag rows and mlag+1 columns
 M <- matrix(NA, nrow = n - mlag, ncol = mlag + 1)
 
 # Fill each column with progressively shifted token vectors
-for (i in 1:(mlag + 1)) {
-  M[, i] <- text_tokens[i:(n - mlag + i - 1)]
+for (col in 1:(mlag + 1)) {
+  start_pos <- col
+  end_pos <- n - mlag + col - 1
+  M[, col] <- text_tokens[start_pos:end_pos]
 }
 
 
@@ -134,9 +136,42 @@ next.word <- function(key, M, M1, w = rep(1, ncol(M) - 1)) {
 
 
 ### Step 8: Select a starting word (not punctuation)
-### Find tokens that correspond to actual words (not punctuation)
-punct_tokens <- match(punct_to_split, b)
-non_punct <- text_tokens[!(text_tokens %in% punct_tokens) & !is.na(text_tokens)]
+punctuation_marks <- c(",", ".", ";", "!", ":", "?") #punctuation symbols
+is_not_punct <- !(b %in% punctuation_marks) #removing the punctuation
+valid_starts <- which(is_not_punct)
+
 
 ##Randomised starting token
-start_token<- sample(non_punct, 1)
+start_token <- sample(valid_starts, 1)
+
+###Step 9: Generate the sentence until full stop
+
+# Initialize sequence with starting word
+sequence <- start_token
+
+## keep generating until we hit a full stop
+repeat{
+  context_len<-min(length(sequence), mlag) # number of words you can check previously to predict the next word
+  start_pos<-length(sequence) - context_len +1 #beginning of the sliding window of order mlag
+  context<-start_pos:length(sequence) #the main parameter needed to predict and generate tokens
+  
+  next_token<-next.word(context, M, text_tokens) #generates next token using next.word function
+  sequence<-c(sequence, next_token) #updates sequence
+  
+  #stop when a full stop is reached
+  if(next_token=="."){ 
+    break
+  }
+  
+  #it started going in infinite loops, so a threshold is kept
+  if(length(sequence)>10){
+    break
+  }
+} 
+
+#the words generated
+generated_words <- b[sequence] 
+
+## print result nicely
+cat("Generated Shakespeare-like sentence:\n", paste(generated_words, collapse = " "), "\n\n")
+
