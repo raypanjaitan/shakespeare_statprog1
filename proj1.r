@@ -141,5 +141,5 @@ next.word <- function(key, M, M1, w = rep(1, ncol(M) - 1)) {
   }
 }
 
-sample <-sample(a_clean, mlag)
-next.word(sample, M, b, w = rep(1, ncol(M) - 1))
+sample <-sample(a_clean, 1)  ##take a random single word token from cleaned text
+next.word(sample, M, b, w = rep(1, ncol(M) - 1)) ##run the next.word function
