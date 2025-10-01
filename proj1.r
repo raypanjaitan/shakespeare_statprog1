@@ -58,7 +58,7 @@ counts_top1000_sorted <- counts_top1000[ord]
 text_tokens<-match(a_clean3,b_top1000_sorted)
 
 # Step 6b: Create matrix M with shifted token sequences
-mlag <- 4  # maximum lag (can be changed)
+mlag <- 2  # maximum lag (can be changed)
 n <- length(text_tokens)
 
 # Create matrix with n-mlag rows and mlag+1 columns
@@ -131,3 +131,12 @@ next.word <- function(key, M, M1, w = rep(1, ncol(M) - 1)) {
     return(sample(common_tokens, 1))
   }
 }
+
+
+### Step 8: Select a starting word (not punctuation)
+### Find tokens that correspond to actual words (not punctuation)
+punct_tokens <- match(punct_to_split, b)
+non_punct <- text_tokens[!(text_tokens %in% punct_tokens) & !is.na(text_tokens)]
+
+##Randomised starting token
+start_token<- sample(non_punct, 1)
