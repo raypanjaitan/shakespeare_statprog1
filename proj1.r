@@ -36,7 +36,7 @@ a <- split_punct(a, punct) ## run the split_punct function
 
 a.freq <- table(a) ## create frequency table of the text
 a.freq.sorted <-sort(a.freq, decreasing=TRUE) ## sort the frequency table
-test <- test[1:1000] ## get 1000 most common words
+b <- a.freq.sorted[1:1000] ## get 1000 most common words
 
 ## tabulate option, but doesn't work
 # u <-unique(a)
