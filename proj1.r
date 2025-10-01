@@ -69,3 +69,65 @@ for (i in 1:(mlag + 1)) {
   M[, i] <- text_tokens[i:(n - mlag + i - 1)]
 }
 
+
+# Step 7: Function to generate next word token
+next.word <- function(key, M, M1, w = rep(1, ncol(M) - 1)) {
+  # Generate next word token based on key (word sequence)
+  # Input: key - vector of tokens for current word sequence
+  #        M - matrix of token sequences
+  #        M1 - full text token vector
+  #        w - mixture weights for different order models
+  # Output: single token for next word
+  
+  mlag <- ncol(M) - 1  # maximum lag from matrix dimensions
+  key_len <- length(key)
+  
+  # Vectors to collect possible next tokens and their probabilities
+  all_next <- c()
+  all_probs <- c()
+  
+  # Try matching from full key down to single word
+  for (m in mlag:1) {
+    # Determine which part of key to use
+    if (key_len >= m) {
+      # Use last m words of key
+      current_key <- key[(key_len - m + 1):key_len]
+    } else if (m <= key_len) {
+      # Use available key
+      current_key <- key
+    } else {
+      # Key too short for this order
+      next
+    }
+    
+    # Match to appropriate columns in M
+    mc <- mlag - m + 1  # starting column
+    
+    # Find matching rows
+    ii <- colSums(!(t(M[, mc:mlag, drop=FALSE]) == current_key))
+    matching_rows <- which(ii == 0 & is.finite(ii))
+    
+    # Get next words from matching rows (last column of M)
+    if (length(matching_rows) > 0) {
+      next_tokens <- M[matching_rows, mlag + 1]
+      # Remove NAs
+      next_tokens <- next_tokens[!is.na(next_tokens)]
+      
+      if (length(next_tokens) > 0) {
+        # Add to collection with appropriate probability weight
+        all_next <- c(all_next, next_tokens)
+        all_probs <- c(all_probs, rep(w[m] / length(next_tokens), 
+                                      length(next_tokens)))
+      }
+    }
+  }
+  
+  # If we found some next words, sample from them
+  if (length(all_next) > 0) {
+    return(sample(all_next, 1, prob = all_probs))
+  } else {
+    # No matches found - sample random common word from text
+    common_tokens <- M1[!is.na(M1)]
+    return(sample(common_tokens, 1))
+  }
+}
