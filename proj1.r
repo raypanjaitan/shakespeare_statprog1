@@ -138,7 +138,7 @@ next.word <- function(key, M, M1, w = rep(1, ncol(M) - 1)) {
 ### Step 8: Select a starting word (not punctuation)
 punctuation_marks <- c(",", ".", ";", "!", ":", "?") #punctuation symbols
 is_not_punct <- !(b %in% punctuation_marks) #removing the punctuation
-valid_starts <- which(is_not_punct)
+valid_starts <- which(is_not_punct) #returns only the TRUE indices in is_not_punct
 
 
 ##Randomised starting token
