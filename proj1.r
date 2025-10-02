@@ -7,41 +7,37 @@ setwd("/Users/sanjoisethi/Documents/UoE Notes/Sem 1/Stat Programming/Assignment 
 a <- scan("shakespeare.txt",what="character",skip=83,nlines=196043-83,
           fileEncoding="UTF-8") #Reading the dataset in UTF-8 text encoding, in character type form. We are skipping the first 83 lines of the dataset.
 
-#4 (a) Removing the stage directions
-# stage_dir=function(starting_bracket_index, a)
-# {
-#   stage_dir_words=c()
-#   for (i in starting_bracket_index)
-#   {
-#     stage_dir_words=c()
-#     counter=0 #For noting the index of ]
-#     for (j in 0:100)
-#     {
-#       #Finding the index of ] and storing it in the counter variable and breaking from the loop as soon as a ] is found
-#       if(grepl("]", a[i+j]))
-#       {
-#         counter=j
-#         break
-#       }
-#     }
-#     stage_dir_words=c(stage_dir_words, a[i:(i+counter)])#Extracting the words between []
-#   }
-#   a_1=a[is.na(match(a,stage_dir_words))] #Deleting the stage words 
-#   return(a_1)
-# }
-# 
-# starting_bracket_index=grep("[", a, fixed=TRUE) #Fetching the indices of the opening brackets
-# a_1=stage_dir(starting_bracket_index, a)
+stage_dir=function(a) 
+{
+  rem_index=integer(0) #To store indices of the stage words to be removed
+  starting_bracket_index=grep("[", a, fixed=TRUE) #Indices of [
+  for(i in starting_bracket_index) #For stage direction words
+  {
+    ending_bracket_counter=min(i+100, length(a)) #Counter to search for ]
+    stage_dir_words=a[i:ending_bracket_counter] #Staging direction words between []
+    ending_bracket_index=grep("]", stage_dir_words, fixed=TRUE)[1] #Indices of ] 
+    if(!is.na(ending_bracket_index)) #Checking that there exists a ]
+    {
+      j=i+ending_bracket_index-1 #Ending bracker index
+    } 
+    else 
+    {
+      j=i #No match for [
+    }
+    rem_index=c(rem_index, i:j) #All words from []
+  }
+  return(a[-rem_index]) #Removing the staging directions
+}
 
-a.dir <- grep("^\\[.*\\]$", a) 
-if(length(a.dir) > 0){ a<-a[-a.dir]} 
+a_1=stage_dir(a) #Calling the function to remove stage directions
 
 #4 (b) Removing character names (Fully Uppercase Words) and Arabic Numerals
 upper_numeral=function(a_1)
 {
-  a_upper=a==toupper(a) & !(a %in% c('I','A')) #Fetching the uppercase words except I and A
-  a_upper_rem=a_upper[!a_upper] #Removing the uppercase words
+  a_upper=a_1==toupper(a_1) & !(a_1 %in% c("I","A")) #Fetching the uppercase words except I and A
+  a_upper_rem=a_1[!a_upper] #Removing the uppercase words
   a_numeral=gsub("[0-9]", "", a_upper_rem) #Removing Arabic numerals
+  return(a_numeral)
 }
 
 a_2=upper_numeral(a_1) #Passing the dataset without the stage words
@@ -83,11 +79,12 @@ split_punct=function(word_vec, punct_vec)
 #Dry Run of the function
 eg_1=c("An", "omnishambles,", "in", "a", "headless", "chicken,", "factory.")
 punct_vec=c(",", ".", ";", "!", ":", "?")
-eg_1=split_punct(x, punct_vec)
-eg_1
+eg_1_ans=split_punct(eg_1, punct_vec)
+eg_1_ans
 
 #4 (e) Using split_punct for our dataset
-a_4=split_punct(x, punct_vec)
+a_4=split_punct(a_3[1:100000], punct_vec) #Running over partial dataset as the function is taking too long to run
+length(a_4)
 
 #4(f) Converting the dataset to lowercase
 a_5=tolower(a_4)
