@@ -8,8 +8,17 @@ a <- scan("shakespeare.txt",what="character",skip=83,nlines=196043-83,
           fileEncoding="UTF-8")
 
 ##Deleting Stage Directions
-open_br<-grep("[", a, fixed=TRUE)
-del1<-c()
+## get direction words coordinate
+a.dir <- grep("^\\[.*\\]$", a) 
+## remove the direction words if it's found
+if(length(a.dir) > 0){
+  a<-a[-a.dir]
+  } 
+
+open_br<-grep("[", a, fixed=TRUE) #finding the open bracket
+del1<-c() 
+
+#loop to find and store ] to delete 
 for (i in open_br){
   close_br=grep("]",a[i:i+100],fixed=TRUE)
   if (length(close_br)>0){
