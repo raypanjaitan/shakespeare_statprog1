@@ -2,10 +2,10 @@
 # Trisno Raynaldy Panjaitan - s2779061
 # Sanjoi Sethi 
 
-
 setwd("C:/Users/adiku/OneDrive/Desktop/edin/project/shakespeare_statprog1")
 z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
                fileEncoding="UTF-8") ##import text; create z variable just for debug
+
 
 a.dir <- grep("^\\[.*\\]$", a) ## get direction words coordinate
 if(length(a.dir) > 0){ a<-a[-a.dir]} ## remove the direction words if it's found
@@ -177,4 +177,5 @@ generated_words <- b[sequence]
 
 ## print result nicely
 cat("Generated Shakespeare-like sentence:\n", paste(generated_words, collapse = " "), "\n\n")
+
 
