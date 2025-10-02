@@ -63,3 +63,34 @@ hyphen_underscore=function(a_2)
 }
 
 a_3=hyphen_underscore(a_2)
+
+#4 (d) Function for detaching the punctuations from the word
+split_punct=function(word_vec, punct_vec)
+{
+  for(i in punct_vec) 
+  {
+    new_punct=paste0("\\", i) #Handling for not be read as punctuation
+    if(any(grepl(new_punct, word_vec))) #Checking words with punctuations
+    {
+      new_word_vec=c() #Temp vector
+      for(j in word_vec) #For separating the punctuations
+      {
+        new_word_vec=c(new_word_vec, j) #Appending the jth word
+        if (grepl(new_punct, j)) #Checking for punctuation in the word
+        {
+          new_word=gsub(new_punct, "", j) #Deleting the punctuation attached
+          new_word_vec[length(new_word_vec)]=new_word #Replacing the original word with the above
+          new_word_vec=c(new_word_vec, i) #Appending the punctuation right after the word
+        }
+      }
+      word_vec=new_word_vec #Temp vec to the main vec
+    }
+  }
+  return(word_vec)
+}
+
+#Dry Run of the function
+eg_1=c("An", "omnishambles,", "in", "a", "headless", "chicken,", "factory.")
+punct_vec=c(",", ".", ";", "!", ":", "?")
+eg_1=split_punct(x, punct_vec)
+eg_1
