@@ -2,11 +2,12 @@
 # Trisno Raynaldy Panjaitan - s2779061 - Points 1-5(d)
 # Sanjoi Sethi 
 
-## 1(a)
+## 3
 setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_statprog1") ## comment out of submitted
 z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
                fileEncoding="UTF-8") ##import text; create z variable just for debug
 
+## 4(a)
 ob <-grep("[", a, fixed=TRUE); ## get indices of words with open bracket
 dir <- c() ##initiate variable for words 
 
