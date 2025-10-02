@@ -48,8 +48,8 @@ split_punct <- function(v, punct){
 }
 
 ## 4(e)
-punct <- "[,.;!:?]" ## punctuations variable
-# "[[:punct:]]"
+punct <- ",|\\.|;|!|:|\\?" ## punctuations variable, escape character by using double backslash
+# punct <- "[,.;!:?]" ## punctuations variable option
 a <- split_punct(a, punct) ## run the split_punct function
 
 ## 4(f)
