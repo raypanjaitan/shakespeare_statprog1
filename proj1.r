@@ -55,7 +55,11 @@ upper_numeral=function(a_1)
 
 a_2=upper_numeral(a_1) #Passing the dataset without the stage words
 
+#4 (c) Removing "-" and "_'
+hyphen_underscore=function(a_2)
+{
+  a_hyphen=gsub("-", "", a_2)
+  a_underscore=gsub("_", "", a_hyphen)
+}
 
-
-
-
+a_3=hyphen_underscore(a_2)
