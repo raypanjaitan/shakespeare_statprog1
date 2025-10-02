@@ -9,6 +9,19 @@ z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
 
 a.dir <- grep("^\\[.*\\]$", a) ## get direction words coordinate
 if(length(a.dir) > 0){ a<-a[-a.dir]} ## remove the direction words if it's found
+
+a.ob <-grep("[", a, fixed=TRUE);
+a.dir <- c()
+
+for (i in a.ob) {
+  cb <- grep("]",a[i:i+100],fixed=TRUE)
+  if (length(cb)>0){
+    icb<-i + cb[1]-1
+    a.dir <- c(a.dir, i:icb)
+  }
+}
+a<-a[-a.dir]
+
 a <- gsub("\\d+", "",a) ## remove all arabic numerals
 a.I <- grepl("\\bI\\b", a) ## get all character "I" coordinate
 a.A <- grepl("\\bA\\b", a) ## get all character "A" coordinate
@@ -31,7 +44,7 @@ split_punct <- function(v, punct){
   return(tolower(tl)) ##return lowercase version of vector
 }
 
-punct <- c(",", ".", ";", "!", ":", "?") ## punctuations variable
+punct <- "[,.;!:?]" ## punctuations variable
 # "[[:punct:]]"
 a <- split_punct(a, punct) ## run the split_punct function
 
