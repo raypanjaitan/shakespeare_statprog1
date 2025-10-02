@@ -4,44 +4,40 @@
 
 
 setwd("C:/Users/adiku/OneDrive/Desktop/edin/project/shakespeare_statprog1")
-a <- scan("shakespeare.txt",what="character",skip=83,nlines=196043-83,
-          fileEncoding="UTF-8")
+z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
+               fileEncoding="UTF-8") ##import text; create z variable just for debug
 
-##Deleting Stage Directions
-## get direction words coordinate
-a.dir <- grep("^\\[.*\\]$", a) 
-## remove the direction words if it's found
-if(length(a.dir) > 0){
-  a<-a[-a.dir]
-  } 
+a.dir <- grep("^\\[.*\\]$", a) ## get direction words coordinate
+if(length(a.dir) > 0){ a<-a[-a.dir]} ## remove the direction words if it's found
+a <- gsub("\\d+", "",a) ## remove all arabic numerals
+a.I <- grepl("\\bI\\b", a) ## get all character "I" coordinate
+a.A <- grepl("\\bA\\b", a) ## get all character "A" coordinate
+a.uc <- (a == toupper(a)) ## get all uppercase coordinate
+a.allowed <- !a.uc | a.I | a.A ## get coordinate of vector without all uppercase, but including character I and A
+a <- a[a.allowed] ## get the filtered vector using the result of above variable
+a <- gsub("_", "", a) ## remove underscores
 
-open_br<-grep("[", a, fixed=TRUE) #finding the open bracket
-del1<-c() 
-
-#loop to find and store ] to delete 
-for (i in open_br){
-  close_br=grep("]",a[i:i+100],fixed=TRUE)
-  if (length(close_br)>0){
-    close_index<-i + close_br[1]-1
-    del1 <- c(del1, i:close_index)
-  }
+split_punct <- function(v, punct){
+  p <- grep(punct, v) ## get coordinate of vector containing punctuations
+  pw <- grep(punct, v, value=TRUE) ## get the word containing punctuations
+  
+  tl <- rep("",length(p)+length(v)) ## vector to store all words
+  tlp <- p+1:length(p) ## coordinate of punctuations
+  
+  pp <- regexpr(punct, v[p]) ## get coordinate of punctuation in the word
+  tl[-tlp] <- gsub(punct, "", v) ## put the punctuations after its word
+  tl[tlp] <- substr(v[p], pp, pp) ## put the cleaned words in its original coordinates
+  
+  return(tolower(tl)) ##return lowercase version of vector
 }
-a_clean=a[-del1] 
 
-##Deleting Character Names
-a_upper<-toupper(a_clean)==a_clean & !(a_clean %in% c("I","A"))
-a_clean1= a_clean[!a_upper]
-
-##Deleting Roman Numerals--->Arabic Numerals
-arabic <- grep("[0-9]", a_clean1, value=FALSE)
-a_clean2 <- a_clean1[-arabic]
-
-##Removing dashes
-a_clean3<- gsub("_", "", a_clean2)
+punct <- c(",", ".", ";", "!", ":", "?") ## punctuations variable
+# "[[:punct:]]"
+a <- split_punct(a, punct) ## run the split_punct function
 
 # Step 5: Find unique words and create common word vocabulary
 # Step 5a: Get vector of all unique words in text
-unique_words <- unique(a_clean3)
+unique_words <- unique(a)
 
 # Step 5b: Create index vector mapping each word in a to unique_words
 # Result is same length as a, with values giving position in unique_words
@@ -53,8 +49,7 @@ word_counts <- tabulate(word_index)
 # Step 5d: Extract the approximately 1000 most common words
 # rank gives ranks with highest count = lowest rank number
 word_ranks <- rank(-word_counts)  ## negate so highest count gets rank 1
-top_n <- 1000
-common_words <- unique_words[word_ranks <= top_n]
+common_words <- unique_words[word_ranks <= 1000]
 b <- common_words  ## store in b as specified
 
 
@@ -63,8 +58,7 @@ b <- common_words  ## store in b as specified
 
 # Step 6a: Create token vector for full text using common words in b
 # NA if word not in common word list
-##text_tokens <- match(a, b)
-text_tokens<-match(a_clean3,b)
+text_tokens<-match(a,b)
 
 # Step 6b: Create matrix M with shifted token sequences
 mlag <- 4  # maximum lag (can be changed)
@@ -173,7 +167,7 @@ repeat{
   }
   
   #it started going in infinite loops, so a threshold is kept
-  if(length(sequence)>10){
+  if(length(sequence)>9){
     break
   }
 } 
