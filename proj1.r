@@ -162,7 +162,7 @@ M=matrix_creation(length(a_5), mlag=4, tokens)
 next.word=function(key,M,M1,w=rep(1,ncol(M)-1)) #Pass M1 from outside
 {
   #Pre-processing of key
-key_1=stage_dir(key)
+  key_1=stage_dir(key)
   key_2=upper_numeral(key_1)
   key_3=hyphen_underscore(key_2)
   key_4=split_punct(key_3, punct_vec) #Using punct_vec as global
