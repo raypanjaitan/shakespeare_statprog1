@@ -2,7 +2,6 @@
 # Trisno Raynaldy Panjaitan - s2779061
 # Sanjoi Sethi - s2891732
 
-
 #3 Changing the working directory. Also, reading the text dataset.
 setwd("/Users/sanjoisethi/Documents/UoE Notes/Sem 1/Stat Programming/Assignment 1/shakespeare_statprog1")
 a <- scan("shakespeare.txt",what="character",skip=83,nlines=196043-83,
@@ -34,16 +33,8 @@ a <- scan("shakespeare.txt",what="character",skip=83,nlines=196043-83,
 # starting_bracket_index=grep("[", a, fixed=TRUE) #Fetching the indices of the opening brackets
 # a_1=stage_dir(starting_bracket_index, a)
 
-open_br<-grep("[", a, fixed=TRUE)
-del1<-c()
-for (i in open_br){
-  close_br=grep("]",a[i:i+100],fixed=TRUE)
-  if (length(close_br)>0){
-    close_index<-i + close_br[1]-1
-    del1 <- c(del1, i:close_index)
-  }
-}
-a_1=a[-del1] 
+a.dir <- grep("^\\[.*\\]$", a) 
+if(length(a.dir) > 0){ a<-a[-a.dir]} 
 
 #4 (b) Removing character names (Fully Uppercase Words) and Arabic Numerals
 upper_numeral=function(a_1)
@@ -94,3 +85,9 @@ eg_1=c("An", "omnishambles,", "in", "a", "headless", "chicken,", "factory.")
 punct_vec=c(",", ".", ";", "!", ":", "?")
 eg_1=split_punct(x, punct_vec)
 eg_1
+
+#4 (e) Using split_punct for our dataset
+a_4=split_punct(x, punct_vec)
+
+#4(f) Converting the dataset to lowercase
+a_5=tolower(a_4)
