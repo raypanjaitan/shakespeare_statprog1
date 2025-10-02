@@ -19,8 +19,6 @@ for (i in ob) { ## loops
   }
 }
 
-# a<-a[-dir]
-
 ## 4(b)
 a <- gsub("\\d+", "",a) ## remove all arabic numerals
 a.I <- grepl("\\bI\\b", a) ## get all character "I" coordinate
@@ -60,7 +58,7 @@ b<-unique(a) ## create vector b from unique version of a
 ## 5(b)
 idx <- match(a, b) ## find the index which element in b each element of a corresponds to
 ## 5(c)
-word_counts <- tabulate(idx, nbins = length(b)) 
+word_counts <- tabulate(idx, nbins = length(b)) ## tabulation for the words vector
 
 ## 5(d) Get the top ~1000 most common words
 word_rank <- rank(-word_counts, ties.method = "first")  ## rank frequencies
