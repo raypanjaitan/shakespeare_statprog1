@@ -135,6 +135,32 @@ common=function(b_3)
 b=common(b_3)
 b
 
+#6 (a) Creating the token vector
+token_generation=function(a_5,b)
+{
+  tokens=match(a_5,b) #Creating a vector of indices by matching the most common 1000 words to our dataset
+  return(tokens)
+}
+
+tokens=token_generation(a_5,b)
+tokens
+cat("Length of data vector is same as the tokens vector a_5:",(length(a_5)), "tokens:", length(tokens)) #Checking if length of data vector a_5 is same as the tokens vector
+
+#6 (b) Creating matrix M
+matrix_creation=function(n, mlag, tokens)
+{
+  M=matrix(tokens, nrow=(n-mlag), ncol=(mlag+1), byrow=TRUE) #Creating a matrix M using the token vector
+  return(M)
+}
+
+M=matrix_creation(length(a_5), mlag=4, tokens)
+M
+
+
+
+
+
+
 
 
 
