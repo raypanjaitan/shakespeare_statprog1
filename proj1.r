@@ -4,7 +4,7 @@
 
 #3 Changing the working directory. Also, reading the text dataset.
 setwd("/Users/sanjoisethi/Documents/UoE Notes/Sem 1/Stat Programming/Assignment 1/shakespeare_statprog1")
-a <- scan("shakespeare.txt",what="character",skip=83,nlines=196043-83,
+a <- scan("shakespeare.txt", what="character", skip=83, nlines=196043-83,
           fileEncoding="UTF-8") #Reading the dataset in UTF-8 text encoding, in character type form. We are skipping the first 83 lines of the dataset.
 
 stage_dir=function(a) 
@@ -34,22 +34,23 @@ a_1=stage_dir(a) #Calling the function to remove stage directions
 #4 (b) Removing character names (Fully Uppercase Words) and Arabic Numerals
 upper_numeral=function(a_1)
 {
-  a_upper=a_1==toupper(a_1) & !(a_1 %in% c("I","A")) #Fetching the uppercase words except I and A
+  a_upper=a_1==toupper(a_1) & !(a_1 %in% c("I", "A")) #Fetching the uppercase words except I and A
   a_upper_rem=a_1[!a_upper] #Removing the uppercase words
   a_numeral=gsub("[0-9]", "", a_upper_rem) #Removing Arabic numerals
   return(a_numeral)
 }
 
-a_2=upper_numeral(a_1) #Passing the dataset without the stage words
+a_2=upper_numeral(a_1) #Passing the dataset to remove uppercase words and Arabic numerals
 
 #4 (c) Removing "-" and "_'
 hyphen_underscore=function(a_2)
 {
-  a_hyphen=gsub("-", "", a_2)
-  a_underscore=gsub("_", "", a_hyphen)
+  a_hyphen=gsub("-", "", a_2) #Removing -
+  a_underscore=gsub("_", "", a_hyphen) #reomving _
+  return(a_underscore)
 }
 
-a_3=hyphen_underscore(a_2)
+a_3=hyphen_underscore(a_2) #Passing the dataset to remove - and _
 
 #4 (d) Function for detaching the punctuations from the word
 split_punct=function(word_vec, punct_vec)
@@ -84,7 +85,71 @@ eg_1_ans
 
 #4 (e) Using split_punct for our dataset
 a_4=split_punct(a_3[1:100000], punct_vec) #Running over partial dataset as the function is taking too long to run
-length(a_4)
 
 #4(f) Converting the dataset to lowercase
-a_5=tolower(a_4)
+lowercase_words=function(a_4)
+{
+  return(tolower(a_4))
+}
+
+a_5=lowercase_words(a_4)
+
+#5 (a) Finding the unique words
+unique_words=function(a_5)
+{
+  return(unique(a_5)) 
+}
+
+b_1=unique_words(a_5) #Passing the dataset to fetch the unique words
+b_1
+
+#5 (b) #Fetching the indices of unique words from a_5
+match_index=function(a_5, b_1)
+{
+  return(match(a_5, b_1)) 
+}
+
+b_2=match_index(a_5,b_1) #Passing the datasets to get the indices of all occurences of the unique words in b present in a_5
+cat("Length of data vector is same as the index vector a_5:",(length(a_5)), "b:", length(b_1)) #Checking if length of data vector a_5 is same as the index vector b
+
+#5 (c) Counting the occurences of unique words
+tabulation=function(b_2, b_1)
+{
+  b_3=tabulate(b_2)
+  names(b_3)=b_1
+  return(b_3)
+}
+
+b_3=tabulation(b_2, b_1) #Passing the index vector to tabulate it
+b_3
+
+#5 (d) Finding the most common 1000 words
+common=function(b_3)
+{
+  ranks=rank(-b_3, ties.method="first") #Giving ascending rank to words with max occurences
+  common_words=names(ranks)[ranks<=1000] #Choosing top 1000 words
+  common_words_asc=common_words[order(ranks[common_words])] #Sorting the words in ascending order according to their ranks
+  return(common_words_asc)
+}
+
+b=common(b_3)
+b
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
