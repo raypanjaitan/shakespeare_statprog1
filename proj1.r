@@ -2,9 +2,10 @@
 # Trisno Raynaldy Panjaitan - s2779061
 # Sanjoi Sethi 
 
-setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_statprog1") ## comment out of submitted
+setwd("C:/Users/adiku/OneDrive/Desktop/edin/project/shakespeare_statprog1")
 z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
                fileEncoding="UTF-8") ##import text; create z variable just for debug
+
 
 a.dir <- grep("^\\[.*\\]$", a) ## get direction words coordinate
 if(length(a.dir) > 0){ a<-a[-a.dir]} ## remove the direction words if it's found
@@ -34,27 +35,22 @@ punct <- c(",", ".", ";", "!", ":", "?") ## punctuations variable
 # "[[:punct:]]"
 a <- split_punct(a, punct) ## run the split_punct function
 
-## table option
-# a.freq <- table(a) ## create frequency table of the text
-# a.freq.sorted <-sort(a.freq, decreasing=TRUE) ## sort the frequency table
-# b <- a.freq.sorted[1:1000] ## get 1000 most common words
-##
+# Step 5: Find unique words and create common word vocabulary
+# Step 5a: Get vector of all unique words in text
+unique_words <- unique(a)
 
-b<-unique(a)
-idx <- match(a, b)
-word_counts <- tabulate(idx, nbins = length(b))
+# Step 5b: Create index vector mapping each word in a to unique_words
+# Result is same length as a, with values giving position in unique_words
+word_index <- match(a, unique_words)
 
-## 8. Get the top ~1000 most common words
-word_rank <- rank(-word_counts, ties.method = "first")  # rank frequencies
-top_1000_idx <- which(word_rank <= 1000)
+# Step 5c: Count occurrences of each unique word using tabulate
+word_counts <- tabulate(word_index)
 
-b <- b[top_1000_idx]                  # words
-counts_top1000 <- word_counts[top_1000_idx]   # their counts
-
-## 9. (Optional) Sort top words by frequency, descending
-ord <- order(counts_top1000, decreasing = TRUE)
-b <- b[ord]
-counts_top1000_sorted <- counts_top1000[ord]
+# Step 5d: Extract the approximately 1000 most common words
+# rank gives ranks with highest count = lowest rank number
+word_ranks <- rank(-word_counts)  ## negate so highest count gets rank 1
+common_words <- unique_words[word_ranks <= 1000]
+b <- common_words  ## store in b as specified
 
 
 
@@ -62,7 +58,6 @@ counts_top1000_sorted <- counts_top1000[ord]
 
 # Step 6a: Create token vector for full text using common words in b
 # NA if word not in common word list
-##text_tokens <- match(a, b)
 text_tokens<-match(a,b)
 
 # Step 6b: Create matrix M with shifted token sequences
@@ -73,8 +68,10 @@ n <- length(text_tokens)
 M <- matrix(NA, nrow = n - mlag, ncol = mlag + 1)
 
 # Fill each column with progressively shifted token vectors
-for (i in 1:(mlag + 1)) {
-  M[, i] <- text_tokens[i:(n - mlag + i - 1)]
+for (col in 1:(mlag + 1)) {
+  start_pos <- col
+  end_pos <- n - mlag + col - 1
+  M[, col] <- text_tokens[start_pos:end_pos]
 }
 
 
@@ -140,5 +137,45 @@ next.word <- function(key, M, M1, w = rep(1, ncol(M) - 1)) {
   }
 }
 
-sample <-sample(a_clean, 1)  ##take a random single word token from cleaned text
-next.word(sample, M, b, w = rep(1, ncol(M) - 1)) ##run the next.word function
+
+### Step 8: Select a starting word (not punctuation)
+punctuation_marks <- c(",", ".", ";", "!", ":", "?") #punctuation symbols
+is_not_punct <- !(b %in% punctuation_marks) #removing the punctuation
+valid_starts <- which(is_not_punct) #returns only the TRUE indices in is_not_punct
+
+
+##Randomised starting token
+start_token <- sample(valid_starts, 1)
+
+###Step 9: Generate the sentence until full stop
+
+# Initialize sequence with starting word
+sequence <- start_token
+
+## keep generating until we hit a full stop
+repeat{
+  context_len<-min(length(sequence), mlag) # number of words you can check previously to predict the next word
+  start_pos<-length(sequence) - context_len +1 #beginning of the sliding window of order mlag
+  context<-start_pos:length(sequence) #the main parameter needed to predict and generate tokens
+  
+  next_token<-next.word(context, M, text_tokens) #generates next token using next.word function
+  sequence<-c(sequence, next_token) #updates sequence
+  
+  #stop when a full stop is reached
+  if(next_token=="."){ 
+    break
+  }
+  
+  #it started going in infinite loops, so a threshold is kept
+  if(length(sequence)>9){
+    break
+  }
+} 
+
+#the words generated
+generated_words <- b[sequence] 
+
+## print result nicely
+cat("Generated Shakespeare-like sentence:\n", paste(generated_words, collapse = " "), "\n\n")
+
+
