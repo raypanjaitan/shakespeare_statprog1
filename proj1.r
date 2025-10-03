@@ -126,11 +126,29 @@ token_generation=function(a_5,b)
 tokens=token_generation(a_5,b)
 cat("Length of data vector is same as the tokens vector:",(length(a_5)), "tokens:", length(tokens)) #Checking if length of data vector a_5 is same as the tokens vector
 
-#6 (b) Creating matrix M
+## Step 6(a): Creating the token vector
+
+# Function to generate token indices from text data
+# Maps each word in the cleaned text to its position in the vocabulary
+# Words not in vocabulary are assigned NA
+token_generation=function(a_5,b)
+{
+  tokens=match(a_5,b) #Creating a vector of indices by matching the most common 1000 words to our dataset
+  return(tokens)
+}
+
+tokens=token_generation(a_5,b)
+cat("Length of data vector is same as the tokens vector:",(length(a_5)), "tokens:", length(tokens)) #Checking if length of data vector a_5 is same as the tokens vector
+
+# 6(b): Creating matrix M
+
+# Each row represents a sliding window of (mlag+1) consecutive tokens
+# Columns 1 to mlag: context words | Column (mlag+1): target word to predict
 matrix_creation=function(n, mlag, tokens)
 {
   M=matrix(NA, nrow=(n-mlag), ncol=(mlag+1), byrow=TRUE) 
-  #Creating a matrix M using the token vector
+  
+  # Fill each column with shifted token sequences
   for(i in 0:mlag)
   {
     M[,i+1]=tokens[(1+i):(n-mlag+i)]
@@ -190,41 +208,40 @@ next.word=function(key,M,M1,w=rep(1,ncol(M)-1)) #Pass M1 from outside
   return(most_probable_word) 
 }
 
-### Step 8: Select a starting word (not punctuation)
-punctuation_marks <- c(",", ".", ";", "!", ":", "?") #punctuation symbols
-is_not_punct <- !(b %in% punctuation_marks) #removing the punctuation
-valid_starts <- which(is_not_punct) #returns only the TRUE indices in is_not_punct
+## Step 8: Select a starting word (not punctuation)
+punctuation_marks <- c(",", ".", ";", "!", ":", "?") # Define punctuation marks to exclude from sentence start
+is_not_punct <- !(b %in% punctuation_marks) # Identify non-punctuation words in vocabulary
+valid_starts <- which(is_not_punct) # Get indices of valid starting words
 
 
-##Randomised starting token
+#Randomly select a starting token from valid options
 start_token <- sample(valid_starts, 1)
 
-###Step 9: Generate the sentence until full stop
+##Step 9: Generate the sentence until full stop
 
-# Initialize sequence with starting word
 # Initialize sequence with starting word
 sequence <- b[start_token]
 
-## keep generating until we hit a full stop
+# Keep generating until we hit a full stop
 repeat{
-  context=sequence
+  context=sequence  #This provides the actual word strings needed by next.word function
   next_token<-next.word(context, M, tokens) #generates next token using next.word function
   sequence<-c(sequence, next_token) #updates sequence
   
-  #stop when a full stop is reached
+  #Stop generating when full stop is generated
   if(next_token=="."){ 
     break
   }
   
-  #it started going in infinite loops, so a threshold is kept
+  #Sequence limited to 10 tokens to ensure generation completes (it started going in infinite loops)
   if(length(sequence)>9){
-    print("Note: Since the process is going into an infinite loop, we have kept a threshold of 9")
+    print("Note: Since the process is going into an infinite loop, we have kept a threshold of 10")
     break
   }
 } 
 
-#the words generated
+#Store the generated token sequence
 generated_words=sequence
 
-## print result nicely
+#Display the generated sequence
 cat("Generated Shakespeare-like sentence:\n", paste(generated_words, collapse = " "), "\n\n")
