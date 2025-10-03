@@ -1,11 +1,12 @@
-# Aditya Sreekumar Achary - s2844915
-# Trisno Raynaldy Panjaitan - s2779061 - Points 1-5(d)
-# Sanjoi Sethi 
+# Aditya Sreekumar Achary - s2844915 - (Worked on Points 6, 8 & 9)
+# Sanjoi Sethi - s2891732 (Worked on Point 7)
+# Trisno Raynaldy Panjaitan - s2779061 - (Worked on Points 1-5(d))
 
-## 3
-setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_statprog1") ## comment out of submitted
-z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
-               fileEncoding="UTF-8") ##import text; create z variable just for debug
+##1 Repo Link: https://github.com/raypanjaitan/shakespeare_statprog1.git
+## 2 & 3
+#setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_statprog1") ## comment out of submitted
+a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
+          fileEncoding="UTF-8") ##import text;
 
 ## 4(a) Removing the staging directions
 stage_dir <- function(a) 
@@ -39,11 +40,11 @@ a_1=stage_dir(a) #Calling the function to remove stage directions
 upper_numeral=function(a_1)
 {
   a_1 <- gsub("\\d+", "",a_1) ## remove all arabic numerals
-  a.I <- grepl("\\bI\\b", a) ## get all character "I" coordinate
-  a.A <- grepl("\\bA\\b", a) ## get all character "A" coordinate
-  a.uc <- (a == toupper(a)) ## get all uppercase coordinate
+  a.I <- grepl("\\bI\\b", a_1) ## get all character "I" coordinate
+  a.A <- grepl("\\bA\\b", a_1) ## get all character "A" coordinate
+  a.uc <- (a_1 == toupper(a_1)) ## get all uppercase coordinate
   a.allowed <- !a.uc | a.I | a.A ## get coordinate of vector without all uppercase, but including character I and A
-  a_2 <- a[a.allowed] ## get the filtered vector using the result of above variable
+  a_2 <- a_1[a.allowed] ## get the filtered vector using the result of above variable
   return(a_2)
 }
 
@@ -201,23 +202,23 @@ start_token <- sample(valid_starts, 1)
 ###Step 9: Generate the sentence until full stop
 
 # Initialize sequence with starting word
-sequence <- start_token
+# Initialize sequence with starting word
+sequence <- b[start_token]
 
 ## keep generating until we hit a full stop
 repeat{
-  context=c("rose") #the main parameter needed to predict and generate tokens
-  context=b[sequence]
+  context=sequence
   next_token<-next.word(context, M, tokens) #generates next token using next.word function
-  print(next_token)
   sequence<-c(sequence, next_token) #updates sequence
   
   #stop when a full stop is reached
-  if(next_token==","){ 
+  if(next_token=="."){ 
     break
   }
   
   #it started going in infinite loops, so a threshold is kept
   if(length(sequence)>9){
+    print("Note: Since the process is going into an infinite loop, we have kept a threshold of 9")
     break
   }
 } 
