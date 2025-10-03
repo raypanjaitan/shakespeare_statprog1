@@ -7,39 +7,30 @@ setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_stat
 z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
                fileEncoding="UTF-8") ##import text; create z variable just for debug
 
-## 4(a)
-# stage_dir <- function(a) 
-# {
-#   ob <-grep("[", a, fixed=TRUE); ## get indices of words with open bracket
-#   dir <- c() ##initiate variable for words 
-#   
-#   for (i in ob) { ## loops
-#     cb <- grep("]",tail(a, length(a)-i+1),fixed=TRUE) ## get indices of 100 words after i that contains char "]"
-#     if (length(cb)>0){ ## check if it's found
-#       a<-a[-(i:(i+cb[1]-1))] ## remove indices from i to the indice where the close bracket is found
-#       # icb<-i + cb[1] 
-#       # dir <- c(dir, i:icb[1])
-#     }
-#   }
-#   return(a)
-# }
-
+## 4(a) Removing the staging directions
 stage_dir <- function(a) 
 {
   ob <-grep("[", a, fixed=TRUE); ## get indices of words with open bracket
-  dir <- c() ##initiate variable for words 
-  
-  for (i in ob) { ## loops
-    searchLength <-i+100
-    cb <- grep("]",a[i:searchLength],fixed=TRUE) ## get indices of 100 words after i that contains char "]"
-    if (length(cb)>0){ ## check if it's found
-      obi <- i+cb[1]-1 ## calculate indice of the closed bracket
-      dir <- c(dir, i:obi) ## add the open bracket and closed bracket indices to var dir
-    }
+  if(length(ob)==0)
+  {
+    return(a) #Error-handling
   }
-  
-  a<-a[-dir] ## remove indices from i to the indices taken from var dir
-  return(a)
+  else
+  {
+    dir <- c() ##initiate variable for words 
+    
+    for (i in ob) { ## loops
+      searchLength <-i+100
+      cb <- grep("]",a[i:searchLength],fixed=TRUE) ## get indices of 100 words after i that contains char "]"
+      if (length(cb)>0){ ## check if it's found
+        obi <- i+cb[1]-1 ## calculate indice of the closed bracket
+        dir <- c(dir, i:obi) ## add the open bracket and closed bracket indices to var dir
+      }
+    }
+    
+    a<-a[-dir] ## remove indices from i to the indices taken from var dir
+    return(a)
+  }
 }
 
 a_1=stage_dir(a) #Calling the function to remove stage directions
@@ -70,6 +61,7 @@ a_3=hyphen_underscore(a_2)
 
 #4 (d) Function for detaching the punctuations from the word
 split_punct <- function(v, punct){
+  punct=paste0("\\", punct)
   p <- grep(punct, v) ## get coordinate of vector containing punctuations
   pw <- grep(punct, v, value=TRUE) ## get the word containing punctuations
   
@@ -84,7 +76,7 @@ split_punct <- function(v, punct){
 }
 
 ## 4(e) Using the split_punct function
-punct <- ",|\\.|;|!|:|\\?" ## punctuations variable, escape character by using double backslash
+punct <- c(",", ".", ";", "!", ":", "?") ## punctuations variable, escape character by using double backslash
 # punct <- "[,.;!:?]" ## punctuations variable option
 a_4<- split_punct(a_3, punct) ## run the split_punct function
 
@@ -138,10 +130,10 @@ M=matrix_creation(length(tokens), mlag=4, tokens)
 next.word=function(key,M,M1,w=rep(1,ncol(M)-1)) #Pass M1 from outside
 {
   #Pre-processing of key
-  #key_1=stage_dir(key)
-  key_2=upper_numeral(key)
+  key_1=stage_dir(key)
+  key_2=upper_numeral(key_1)
   key_3=hyphen_underscore(key_2)
-  key_4=split_punct(key_3, punct_vec) #Using punct_vec as global
+  key_4=split_punct(key_3, punct) #Using punct as global
   key_5=lowercase_words(key_4)
   
   #Choosing last mlag words from key
@@ -164,7 +156,7 @@ next.word=function(key,M,M1,w=rep(1,ncol(M)-1)) #Pass M1 from outside
       prob_mc=(1/mlag)*table(u)/length(u) #Finding the probability distribution over b
       prob[names(prob_mc)]=prob[names(prob_mc)]+prob_mc
     }
-    # Commented because getting an unresolved error
+    ###Commented because getting an unresolved error
     # else
     # {
     #   #Sampling a common word, and assigning it highest probability for it to be selected
@@ -202,7 +194,7 @@ sequence <- start_token
 repeat{
   context=c("rose") #the main parameter needed to predict and generate tokens
   context=b[sequence]
-  next_token<-next.word(context, M, text_tokens) #generates next token using next.word function
+  next_token<-next.word(context, M, tokens) #generates next token using next.word function
   print(next_token)
   sequence<-c(sequence, next_token) #updates sequence
   
