@@ -97,9 +97,9 @@ lowercase_words=function(a_4)
 a_5 <-tolower(a_4)
 
 ## 5(a)
-b<-unique(a_5) ## create vector b from unique version of a
+unique_words<-unique(a_5) ## create vector b from unique version of a
 ## 5(b)
-idx <- match(a_5, b) ## find the index which element in b each element of a corresponds to
+idx <- match(a_5, unique_words) ## find the index which element in b each element of a corresponds to
 ## 5(c)
 word_counts <- tabulate(idx, nbins = length(b)) ## tabulation for the words vector
 
@@ -107,15 +107,8 @@ word_counts <- tabulate(idx, nbins = length(b)) ## tabulation for the words vect
 word_rank <- rank(-word_counts, ties.method = "first")  ## rank frequencies
 top_1000_idx <- which(word_rank <= 1000)
 
-b <- b[top_1000_idx] ## words
+b <- unique_words[top_1000_idx] ## words
 counts_top1000 <- word_counts[top_1000_idx] ## their counts
-
-# Step 5d: Extract the approximately 1000 most common words
-# rank gives ranks with highest count = lowest rank number
-word_ranks <- rank(-word_counts)  ## negate so highest count gets rank 1
-common_words <- b[word_ranks <= 1000]
-b <- common_words  ## store in b as specified
-
 
 #6 (a) Creating the token vector
 token_generation=function(a_5,b)
@@ -134,7 +127,7 @@ matrix_creation=function(n, mlag, tokens)
   return(M)
 }
 
-M=matrix_creation(length(a_5), mlag=4, tokens)
+M=matrix_creation(length(tokens), mlag=4, tokens)
 
 #7 Generation model
 next.word=function(key,M,M1,w=rep(1,ncol(M)-1)) #Pass M1 from outside
