@@ -8,25 +8,39 @@ z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
                fileEncoding="UTF-8") ##import text; create z variable just for debug
 
 ## 4(a)
+# stage_dir <- function(a) 
+# {
+#   ob <-grep("[", a, fixed=TRUE); ## get indices of words with open bracket
+#   dir <- c() ##initiate variable for words 
+#   
+#   for (i in ob) { ## loops
+#     cb <- grep("]",tail(a, length(a)-i+1),fixed=TRUE) ## get indices of 100 words after i that contains char "]"
+#     if (length(cb)>0){ ## check if it's found
+#       a<-a[-(i:(i+cb[1]-1))] ## remove indices from i to the indice where the close bracket is found
+#       # icb<-i + cb[1] 
+#       # dir <- c(dir, i:icb[1])
+#     }
+#   }
+#   return(a)
+# }
+
 stage_dir <- function(a) 
 {
   ob <-grep("[", a, fixed=TRUE); ## get indices of words with open bracket
   dir <- c() ##initiate variable for words 
   
   for (i in ob) { ## loops
-    cb <- grep("]",tail(a, length(a)-i+1),fixed=TRUE) ## get indices of 100 words after i that contains char "]"
+    searchLength <-i+100
+    cb <- grep("]",a[i:searchLength],fixed=TRUE) ## get indices of 100 words after i that contains char "]"
     if (length(cb)>0){ ## check if it's found
-      print(i:i+cb[1])
-      a<-a[-c(i:i+cb[1])] ## remove indices from i to the indice where the close bracket is found
-      # icb<-i + cb[1] 
-      # dir <- c(dir, i:icb[1])
+      obi <- i+cb[1]-1 ## calculate indice of the closed bracket
+      dir <- c(dir, i:obi) ## add the open bracket and closed bracket indices to var dir
     }
   }
+  
+  a<-a[-dir] ## remove indices from i to the indices taken from var dir
+  return(a)
 }
-
-a=c("I", "am", "a", "Complan", "Girl", "[Exit", "Girl]", "Wow", "Nice", "Performance")
-x=stage_dir(a)
-x
 
 a_1=stage_dir(a) #Calling the function to remove stage directions
 
@@ -69,13 +83,18 @@ split_punct <- function(v, punct){
   return(tl) ##return 
 }
 
-## 4(e)
+## 4(e) Using the split_punct function
 punct <- ",|\\.|;|!|:|\\?" ## punctuations variable, escape character by using double backslash
 # punct <- "[,.;!:?]" ## punctuations variable option
 a_4<- split_punct(a_3, punct) ## run the split_punct function
 
-## 4(f)
-a_5 <-tolower(a_4) ##lowercase version of vector
+## 4(f) lowercase version of vector
+lowercase_words=function(a_4)
+{
+  return(tolower(a_4))
+}
+
+a_5 <-tolower(a_4)
 
 ## 5(a)
 b<-unique(a_5) ## create vector b from unique version of a
@@ -94,7 +113,7 @@ counts_top1000 <- word_counts[top_1000_idx] ## their counts
 # Step 5d: Extract the approximately 1000 most common words
 # rank gives ranks with highest count = lowest rank number
 word_ranks <- rank(-word_counts)  ## negate so highest count gets rank 1
-common_words <- unique_words[word_ranks <= 1000]
+common_words <- b[word_ranks <= 1000]
 b <- common_words  ## store in b as specified
 
 
