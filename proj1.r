@@ -8,30 +8,53 @@ z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
                fileEncoding="UTF-8") ##import text; create z variable just for debug
 
 ## 4(a)
-ob <-grep("[", a, fixed=TRUE); ## get indices of words with open bracket
-dir <- c() ##initiate variable for words 
-
-for (i in ob) { ## loops
-  cb <- grep("]",a[i:i+100],fixed=TRUE) ## get indices of 100 words after i that contains char "]"
-  if (length(cb)>0){ ## check if it's found
-    a<-a[-c(i:cb[1])] ## remove indices from i to the indice where the close bracket is found
-    # icb<-i + cb[1] 
-    # dir <- c(dir, i:icb[1])
+stage_dir <- function(a) 
+{
+  ob <-grep("[", a, fixed=TRUE); ## get indices of words with open bracket
+  dir <- c() ##initiate variable for words 
+  
+  for (i in ob) { ## loops
+    cb <- grep("]",tail(a, length(a)-i+1),fixed=TRUE) ## get indices of 100 words after i that contains char "]"
+    if (length(cb)>0){ ## check if it's found
+      print(i:i+cb[1])
+      a<-a[-c(i:i+cb[1])] ## remove indices from i to the indice where the close bracket is found
+      # icb<-i + cb[1] 
+      # dir <- c(dir, i:icb[1])
+    }
   }
 }
 
+a=c("I", "am", "a", "Complan", "Girl", "[Exit", "Girl]", "Wow", "Nice", "Performance")
+x=stage_dir(a)
+x
+
+a_1=stage_dir(a) #Calling the function to remove stage directions
+
 ## 4(b)
-a <- gsub("\\d+", "",a) ## remove all arabic numerals
-a.I <- grepl("\\bI\\b", a) ## get all character "I" coordinate
-a.A <- grepl("\\bA\\b", a) ## get all character "A" coordinate
-a.uc <- (a == toupper(a)) ## get all uppercase coordinate
-a.allowed <- !a.uc | a.I | a.A ## get coordinate of vector without all uppercase, but including character I and A
-a <- a[a.allowed] ## get the filtered vector using the result of above variable
+upper_numeral=function(a_1)
+{
+  a_1 <- gsub("\\d+", "",a_1) ## remove all arabic numerals
+  a.I <- grepl("\\bI\\b", a) ## get all character "I" coordinate
+  a.A <- grepl("\\bA\\b", a) ## get all character "A" coordinate
+  a.uc <- (a == toupper(a)) ## get all uppercase coordinate
+  a.allowed <- !a.uc | a.I | a.A ## get coordinate of vector without all uppercase, but including character I and A
+  a_2 <- a[a.allowed] ## get the filtered vector using the result of above variable
+  return(a_2)
+}
 
-## 4(c)
-a <- gsub("_", "", a) ## remove underscores
+a_2=upper_numeral(a_1)
 
-## 4(d)
+#4 (c) Removing "-" and "_"
+hyphen_underscore <- function(a_2)
+{
+  a_hyphen <- gsub("-", "", a_2) ## remove hyphens
+  a_underscore <- gsub("_", "", a_hyphen) ## remove underscores
+  return(a_underscore)
+}
+
+a_3=hyphen_underscore(a_2)
+
+#4 (d) Function for detaching the punctuations from the word
 split_punct <- function(v, punct){
   p <- grep(punct, v) ## get coordinate of vector containing punctuations
   pw <- grep(punct, v, value=TRUE) ## get the word containing punctuations
@@ -49,15 +72,15 @@ split_punct <- function(v, punct){
 ## 4(e)
 punct <- ",|\\.|;|!|:|\\?" ## punctuations variable, escape character by using double backslash
 # punct <- "[,.;!:?]" ## punctuations variable option
-a <- split_punct(a, punct) ## run the split_punct function
+a_4<- split_punct(a_3, punct) ## run the split_punct function
 
 ## 4(f)
-a <-tolower(a) ##lowercase version of vector
+a_5 <-tolower(a_4) ##lowercase version of vector
 
 ## 5(a)
-b<-unique(a) ## create vector b from unique version of a
+b<-unique(a_5) ## create vector b from unique version of a
 ## 5(b)
-idx <- match(a, b) ## find the index which element in b each element of a corresponds to
+idx <- match(a_5, b) ## find the index which element in b each element of a corresponds to
 ## 5(c)
 word_counts <- tabulate(idx, nbins = length(b)) ## tabulation for the words vector
 
@@ -75,89 +98,74 @@ common_words <- unique_words[word_ranks <= 1000]
 b <- common_words  ## store in b as specified
 
 
-## Step 6:Create matrix M of word token sequences
-
-# Step 6a: Create token vector for full text using common words in b
-# NA if word not in common word list
-text_tokens<-match(a,b)
-
-# Step 6b: Create matrix M with shifted token sequences
-mlag <- 4  # maximum lag (can be changed)
-n <- length(text_tokens)
-
-# Create matrix with n-mlag rows and mlag+1 columns
-M <- matrix(NA, nrow = n - mlag, ncol = mlag + 1)
-
-# Fill each column with progressively shifted token vectors
-for (col in 1:(mlag + 1)) {
-  start_pos <- col
-  end_pos <- n - mlag + col - 1
-  M[, col] <- text_tokens[start_pos:end_pos]
+#6 (a) Creating the token vector
+token_generation=function(a_5,b)
+{
+  tokens=match(a_5,b) #Creating a vector of indices by matching the most common 1000 words to our dataset
+  return(tokens)
 }
 
+tokens=token_generation(a_5,b)
+cat("Length of data vector is same as the tokens vector:",(length(a_5)), "tokens:", length(tokens)) #Checking if length of data vector a_5 is same as the tokens vector
 
-# Step 7: Function to generate next word token
-next.word <- function(key, M, M1, w = rep(1, ncol(M) - 1)) {
-  # Generate next word token based on key (word sequence)
-  # Input: key - vector of tokens for current word sequence
-  #        M - matrix of token sequences
-  #        M1 - full text token vector
-  #        w - mixture weights for different order models
-  # Output: single token for next word
-  
-  mlag <- ncol(M) - 1  # maximum lag from matrix dimensions
-  key_len <- length(key)
-  
-  # Vectors to collect possible next tokens and their probabilities
-  all_next <- c()
-  all_probs <- c()
-  
-  # Try matching from full key down to single word
-  for (m in mlag:1) {
-    # Determine which part of key to use
-    if (key_len >= m) {
-      # Use last m words of key
-      current_key <- key[(key_len - m + 1):key_len]
-    } else if (m <= key_len) {
-      # Use available key
-      current_key <- key
-    } else {
-      # Key too short for this order
-      next
-    }
-    
-    # Match to appropriate columns in M
-    mc <- mlag - m + 1  # starting column
-    
-    # Find matching rows
-    ii <- colSums(!(t(M[, mc:mlag, drop=FALSE]) == current_key))
-    matching_rows <- which(ii == 0 & is.finite(ii))
-    
-    # Get next words from matching rows (last column of M)
-    if (length(matching_rows) > 0) {
-      next_tokens <- M[matching_rows, mlag + 1]
-      # Remove NAs
-      next_tokens <- next_tokens[!is.na(next_tokens)]
-      
-      if (length(next_tokens) > 0) {
-        # Add to collection with appropriate probability weight
-        all_next <- c(all_next, next_tokens)
-        all_probs <- c(all_probs, rep(w[m] / length(next_tokens), 
-                                      length(next_tokens)))
-      }
-    }
-  }
-  
-  # If we found some next words, sample from them
-  if (length(all_next) > 0) {
-    return(sample(all_next, 1, prob = all_probs))
-  } else {
-    # No matches found - sample random common word from text
-    common_tokens <- M1[!is.na(M1)]
-    return(sample(common_tokens, 1))
-  }
+#6 (b) Creating matrix M
+matrix_creation=function(n, mlag, tokens)
+{
+  M=matrix(tokens, nrow=(n-mlag), ncol=(mlag+1), byrow=TRUE) #Creating a matrix M using the token vector
+  return(M)
 }
 
+M=matrix_creation(length(a_5), mlag=4, tokens)
+
+#7 Generation model
+next.word=function(key,M,M1,w=rep(1,ncol(M)-1)) #Pass M1 from outside
+{
+  #Pre-processing of key
+  key_1=stage_dir(key)
+  key_2=upper_numeral(key_1)
+  key_3=hyphen_underscore(key_2)
+  key_4=split_punct(key_3, punct_vec) #Using punct_vec as global
+  key_5=lowercase_words(key_4)
+  
+  #Choosing last mlag words from key
+  mlag=ncol(M)-1
+  length_check=min(mlag, length(key_5))
+  key_6=tail(key_5, length_check)
+  
+  #Making tokens of key
+  token_key=token_generation(key_6,b)
+  prob=setNames(rep(0, length(b)),1:length(b))
+  
+  for(mc in 1:mlag)
+  {
+    reduced_token=head(token_key[mc:mlag]) #Decreasing the token length as the size of matrix M decreases
+    ii=colSums(!(t(M[,mc:mlag,drop=FALSE])==reduced_token)) 
+    matching=grep(0, ii, fixed=TRUE) #Counting the number of zeros for all matches
+    if(length(matching)>0) 
+    {
+      u=M[matching, mlag+1] #Finding the corresponding last column entry of M wherever we found a match
+      prob_mc=(1/mlag)*table(u)/length(u) #Finding the probability distribution over b
+      prob[names(prob_mc)]=prob[names(prob_mc)]+prob_mc
+    }
+    # Commented because getting an unresolved error
+    # else
+    # {
+    #   #Sampling a common word, and assigning it highest probability for it to be selected
+    #   tab=table(a_5)
+    #   frequencies=tab[as.character(b)]
+    #   frequencies[is.na(frequencies)] <- 0
+    #   probabilities=frequencies/length(a_5)
+    #   most_probable_word=sample(x=b,size=1,prob=probabilities)
+    #   most_probable_token=grep(most_probable_word,b,fixed=TRUE)
+    #   prob_mc=(1/mlag)*c(most_probable_token=1)
+    #   prob[names(prob_mc)]=prob[names(prob_mc)]+prob_mc
+    # }
+  }
+  most_probable_tokens=names(prob)[which(prob==max(prob))] #Tokens with highest probability (maybe multiple)
+  most_probable_token=as.integer(sample(most_probable_tokens,1)) #Sampling if multiple tokens in the previous step (Introduces randomness)
+  most_probable_word=b[most_probable_token] #Converting token to word
+  return(most_probable_word) 
+}
 
 ### Step 8: Select a starting word (not punctuation)
 punctuation_marks <- c(",", ".", ";", "!", ":", "?") #punctuation symbols
@@ -175,15 +183,14 @@ sequence <- start_token
 
 ## keep generating until we hit a full stop
 repeat{
-  context_len<-min(length(sequence), mlag) # number of words you can check previously to predict the next word
-  start_pos<-length(sequence) - context_len +1 #beginning of the sliding window of order mlag
-  context<-start_pos:length(sequence) #the main parameter needed to predict and generate tokens
-  
+  context=c("rose") #the main parameter needed to predict and generate tokens
+  context=b[sequence]
   next_token<-next.word(context, M, text_tokens) #generates next token using next.word function
+  print(next_token)
   sequence<-c(sequence, next_token) #updates sequence
   
   #stop when a full stop is reached
-  if(next_token=="."){ 
+  if(next_token==","){ 
     break
   }
   
@@ -198,5 +205,3 @@ generated_words <- b[sequence]
 
 ## print result nicely
 cat("Generated Shakespeare-like sentence:\n", paste(generated_words, collapse = " "), "\n\n")
-
-
