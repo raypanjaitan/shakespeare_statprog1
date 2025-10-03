@@ -123,7 +123,12 @@ cat("Length of data vector is same as the tokens vector:",(length(a_5)), "tokens
 #6 (b) Creating matrix M
 matrix_creation=function(n, mlag, tokens)
 {
-  M=matrix(tokens, nrow=(n-mlag), ncol=(mlag+1), byrow=TRUE) #Creating a matrix M using the token vector
+  M=matrix(NA, nrow=(n-mlag), ncol=(mlag+1), byrow=TRUE) 
+  #Creating a matrix M using the token vector
+  for(i in 0:mlag)
+  {
+    M[,i+1]=tokens[(1+i):(n-mlag+i)]
+  }
   return(M)
 }
 
@@ -133,8 +138,8 @@ M=matrix_creation(length(tokens), mlag=4, tokens)
 next.word=function(key,M,M1,w=rep(1,ncol(M)-1)) #Pass M1 from outside
 {
   #Pre-processing of key
-  key_1=stage_dir(key)
-  key_2=upper_numeral(key_1)
+  #key_1=stage_dir(key)
+  key_2=upper_numeral(key)
   key_3=hyphen_underscore(key_2)
   key_4=split_punct(key_3, punct_vec) #Using punct_vec as global
   key_5=lowercase_words(key_4)
