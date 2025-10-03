@@ -1,22 +1,37 @@
 # Aditya Sreekumar Achary - s2844915
-# Trisno Raynaldy Panjaitan - s2779061
+# Trisno Raynaldy Panjaitan - s2779061 - Points 1-5(d)
 # Sanjoi Sethi 
 
-setwd("C:/Users/adiku/OneDrive/Desktop/edin/project/shakespeare_statprog1")
+## 3
+setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_statprog1") ## comment out of submitted
 z <- a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
                fileEncoding="UTF-8") ##import text; create z variable just for debug
 
+## 4(a)
+ob <-grep("[", a, fixed=TRUE); ## get indices of words with open bracket
+dir <- c() ##initiate variable for words 
 
-a.dir <- grep("^\\[.*\\]$", a) ## get direction words coordinate
-if(length(a.dir) > 0){ a<-a[-a.dir]} ## remove the direction words if it's found
+for (i in ob) { ## loops
+  cb <- grep("]",a[i:i+100],fixed=TRUE) ## get indices of 100 words after i that contains char "]"
+  if (length(cb)>0){ ## check if it's found
+    a<-a[-c(i:cb[1])] ## remove indices from i to the indice where the close bracket is found
+    # icb<-i + cb[1] 
+    # dir <- c(dir, i:icb[1])
+  }
+}
+
+## 4(b)
 a <- gsub("\\d+", "",a) ## remove all arabic numerals
 a.I <- grepl("\\bI\\b", a) ## get all character "I" coordinate
 a.A <- grepl("\\bA\\b", a) ## get all character "A" coordinate
 a.uc <- (a == toupper(a)) ## get all uppercase coordinate
 a.allowed <- !a.uc | a.I | a.A ## get coordinate of vector without all uppercase, but including character I and A
 a <- a[a.allowed] ## get the filtered vector using the result of above variable
+
+## 4(c)
 a <- gsub("_", "", a) ## remove underscores
 
+## 4(d)
 split_punct <- function(v, punct){
   p <- grep(punct, v) ## get coordinate of vector containing punctuations
   pw <- grep(punct, v, value=TRUE) ## get the word containing punctuations
@@ -28,30 +43,36 @@ split_punct <- function(v, punct){
   tl[-tlp] <- gsub(punct, "", v) ## put the punctuations after its word
   tl[tlp] <- substr(v[p], pp, pp) ## put the cleaned words in its original coordinates
   
-  return(tolower(tl)) ##return lowercase version of vector
+  return(tl) ##return 
 }
 
-punct <- c(",", ".", ";", "!", ":", "?") ## punctuations variable
-# "[[:punct:]]"
+## 4(e)
+punct <- ",|\\.|;|!|:|\\?" ## punctuations variable, escape character by using double backslash
+# punct <- "[,.;!:?]" ## punctuations variable option
 a <- split_punct(a, punct) ## run the split_punct function
 
-# Step 5: Find unique words and create common word vocabulary
-# Step 5a: Get vector of all unique words in text
-unique_words <- unique(a)
+## 4(f)
+a <-tolower(a) ##lowercase version of vector
 
-# Step 5b: Create index vector mapping each word in a to unique_words
-# Result is same length as a, with values giving position in unique_words
-word_index <- match(a, unique_words)
+## 5(a)
+b<-unique(a) ## create vector b from unique version of a
+## 5(b)
+idx <- match(a, b) ## find the index which element in b each element of a corresponds to
+## 5(c)
+word_counts <- tabulate(idx, nbins = length(b)) ## tabulation for the words vector
 
-# Step 5c: Count occurrences of each unique word using tabulate
-word_counts <- tabulate(word_index)
+## 5(d) Get the top ~1000 most common words
+word_rank <- rank(-word_counts, ties.method = "first")  ## rank frequencies
+top_1000_idx <- which(word_rank <= 1000)
+
+b <- b[top_1000_idx] ## words
+counts_top1000 <- word_counts[top_1000_idx] ## their counts
 
 # Step 5d: Extract the approximately 1000 most common words
 # rank gives ranks with highest count = lowest rank number
 word_ranks <- rank(-word_counts)  ## negate so highest count gets rank 1
 common_words <- unique_words[word_ranks <= 1000]
 b <- common_words  ## store in b as specified
-
 
 
 ## Step 6:Create matrix M of word token sequences
