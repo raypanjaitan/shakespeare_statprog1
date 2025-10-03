@@ -60,19 +60,32 @@ hyphen_underscore <- function(a_2)
 a_3=hyphen_underscore(a_2)
 
 #4 (d) Function for detaching the punctuations from the word
-split_punct <- function(v, punct){
-  punct=paste0("\\", punct)
-  p <- grep(punct, v) ## get coordinate of vector containing punctuations
-  pw <- grep(punct, v, value=TRUE) ## get the word containing punctuations
-  
-  tl <- rep("",length(p)+length(v)) ## vector to store all words
-  tlp <- p+1:length(p) ## coordinate of punctuations
-  
-  pp <- regexpr(punct, v[p]) ## get coordinate of punctuation in the word
-  tl[-tlp] <- gsub(punct, "", v) ## put the punctuations after its word
-  tl[tlp] <- substr(v[p], pp, pp) ## put the cleaned words in its original coordinates
-  
+split_once <- function(v, punct_one){
+  punct=paste0("\\", punct_one)
+  if (length(grep(punct, v))>0){
+    p <- grep(punct, v) ## get coordinate of vector containing punctuations
+    pw <- grep(punct, v, value=TRUE) ## get the word containing punctuations
+    
+    tl <- rep("",length(p)+length(v)) ## vector to store all words
+    tlp <- p+1:length(p) ## coordinate of punctuations
+    
+    pp <- regexpr(punct, v[p]) ## get coordinate of punctuation in the word
+    tl[-tlp] <- gsub(punct, "", v) ## put the punctuations after its word
+    tl[tlp] <- substr(v[p], pp, pp) ## put the cleaned words in its original coordinates
+  }
+  else{
+    tl <- v
+  }
   return(tl) ##return 
+}
+
+#For recursively calling split_punct
+split_punct <- function(v, punct){
+  temp=v
+  for (i in punct){
+    temp=split_once(temp,i)
+  }
+  return(temp)
 }
 
 ## 4(e) Using the split_punct function
@@ -210,7 +223,7 @@ repeat{
 } 
 
 #the words generated
-generated_words <- b[sequence] 
+generated_words=sequence
 
 ## print result nicely
 cat("Generated Shakespeare-like sentence:\n", paste(generated_words, collapse = " "), "\n\n")
