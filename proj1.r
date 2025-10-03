@@ -12,13 +12,17 @@ ob <-grep("[", a, fixed=TRUE); ## get indices of words with open bracket
 dir <- c() ##initiate variable for words 
 
 for (i in ob) { ## loops
-  cb <- grep("]",a[i:i+100],fixed=TRUE) ## get indices of 100 words after i that contains char "]"
+  searchLength <-i+100
+  cb <- grep("]",a[i:searchLength],fixed=TRUE) ## get indices of 100 words after i that contains char "]"
   if (length(cb)>0){ ## check if it's found
-    a<-a[-c(i:cb[1])] ## remove indices from i to the indice where the close bracket is found
+    obi <- i+cb[1]-1 ## calculate indice of the closed bracket
+    dir <- c(dir, i:obi) ## add the open bracket and closed bracket indices to var dir
     # icb<-i + cb[1] 
     # dir <- c(dir, i:icb[1])
   }
 }
+
+a<-a[-dir] ## remove indices from i to the indices taken from var dir
 
 ## 4(b)
 a <- gsub("\\d+", "",a) ## remove all arabic numerals
