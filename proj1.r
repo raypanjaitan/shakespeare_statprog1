@@ -17,8 +17,6 @@ for (i in ob) { ## loops
   if (length(cb)>0){ ## check if it's found
     obi <- i+cb[1]-1 ## calculate indice of the closed bracket
     dir <- c(dir, i:obi) ## add the open bracket and closed bracket indices to var dir
-    # icb<-i + cb[1] 
-    # dir <- c(dir, i:icb[1])
   }
 }
 
@@ -202,5 +200,4 @@ generated_words <- b[sequence]
 
 ## print result nicely
 cat("Generated Shakespeare-like sentence:\n", paste(generated_words, collapse = " "), "\n\n")
-
 
