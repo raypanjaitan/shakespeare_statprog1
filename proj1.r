@@ -4,7 +4,7 @@
 
 ##1 Repo Link: https://github.com/raypanjaitan/shakespeare_statprog1.git
 ## 2 & 3
-#setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_statprog1") ## comment out of submitted
+setwd("D:\\Edu\\Master\\Courses\\Statistical Programming\\Repo\\shakespeare_statprog1") ## comment out of submitted
 a <- scan("pg100.txt",what="character",skip=83,nlines=196043-83,
           fileEncoding="UTF-8") ##import text;
 
